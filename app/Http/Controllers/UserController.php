@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Login;
 use Validator;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\File;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
@@ -19,14 +21,14 @@ class UserController extends Controller
                     'message' => ['These credentials do not match our records.']
                 ], 404);
             }
-        
+
              $token = $username->createToken('my-app-token')->plainTextToken;
-        
+
             $response = [
                 'username' => $username,
                 'token' => $token
             ];
-             
+
             return response($response, 201);
     }
     function getdata(Request $req){
@@ -80,11 +82,11 @@ class UserController extends Controller
                 'password'=>'required',
             ]);
             $user = User::where(['username'=>$validator['username'],'password'=>$validator['password']])->first();
-            $token = $user->createToken("authtoken")->accessToken;
+           // $token = $user->createToken("authtoken")->accessToken;
 
             return response()->json(
                 [
-                'token' => $token,
+                //'token' => $token,
                 'user' => $user,
                 'message' => 'User logged in Successfully',
                 'status' => 1
@@ -93,38 +95,54 @@ class UserController extends Controller
     public function import(Request $request){
         $file = $request->file('file');
         $fileContents = file($file->getPathname());
-    
+
         foreach ($fileContents as $line) {
             $data = str_getcsv($line);
-    
+
             Flight::create([
+                'flight_id' => $data[0],
                 'flight_name' => $data[1],
                 'arrival' => $data[2],
                 'destination' => $data[3],
-    
+
                 // Add more fields as needed
             ]);
         }
         return ["success"=> "CSV file imported successfully."];
     }
-    public function export()
+    public function export($type)
     {
         $flights = Flight::all();
-        $csvFileName = 'flight_data.csv';
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $csvFileName . '"',
-        ];
-    
-        $handle = fopen('php://output', 'w');
-        fputcsv($handle, ['Flight Name', 'Arrival', 'Destination']); // Add more headers as needed
-    
-        foreach ($flights as $flight) {
-            fputcsv($handle, [$flight->flight_name, $flight->arrival, $flight->destination]);
-        }
-        fclose($handle);
-    
-        return Response::make('', 200, $headers);
+        if($type=='csv'){
+            $csvFileName = 'flight_data.csv';
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $csvFileName . '"',
+            ];
+
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, ['Flight_id','Flight_name', 'Arrival', 'Destination']); // Add more headers as needed
+
+            foreach ($flights as $flight) {
+                fputcsv($handle, [$flight->flight_id, $flight->flight_name, $flight->arrival, $flight->destination]);
+            }
+            fclose($handle);
+
+            return Response::make('', 200, $headers);
     }
-    
+    else if($type=='pdf'){
+
+        Storage::put('Flight_data.pdf', $flights);
+        return ["Result" => "File has been downloaded"];
+    }
+    else if($type=='xlsx'){
+        Storage::put("Flight_data.xlsx", $flights);
+        return ["Result" => "File has been downloaded"];
+
+    }
+    else if($type=='json'){
+        return Response::json($flights);
+        }
+
+    }
 }

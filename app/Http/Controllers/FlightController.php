@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Flight;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Validator;
 class FlightController extends Controller
 {
@@ -23,8 +24,8 @@ class FlightController extends Controller
             return ["Result","Operation failed"];
         }
     }
-    function update(Request $req){
-        $flight = Flight::find($req->flight_id);
+    function update(Request $req , $id){
+        $flight = Flight::find($id);
         $flight->flight_name=$req->flight_name;
         $flight->arrival=$req->arrival;
         $flight->destination=$req->destination;
@@ -47,10 +48,13 @@ class FlightController extends Controller
         }
     }
 
-    function searchGlobal($name){
-        return Flight::where(['flight_name','arrival','destination'],"like","%".$name."%")->get();
+    /*function searchGlobal($name){
+        return Flight::where(['flight_name',"like","%".$name."%"],
+                            ['arrival',"like","%".$name."%"],
+                            ['destination',"like","%".$name."%"]
+                    )->get();
     }
-
+*/
     function delete($flight_id){
         $flight=Flight::find($flight_id);
         $result=$flight->delete();
@@ -78,7 +82,7 @@ class FlightController extends Controller
             $flight->destination=$req->destination;
             $result=$flight->save();
             if($result){
-                return ["Result"=>"Validation is successful"];
+                return ["Result"=>"Validation is successful and Flight data is saved"];
             }else{
                 return ["Result"=>"Operation failed"];
             }
