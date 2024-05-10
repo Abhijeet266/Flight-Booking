@@ -25,24 +25,24 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     Route::delete("delete/{flight_id}", [FlightController::class,'delete']);
     Route::post("save",[FlightController::class,'testData']);
     });
-*/
-Route::middleware('auth:api')->group(function(){
+// */
+// Route::middleware('auth:api')->group(function(){
     Route::get("list/{id?}",[FlightController::class, 'list']);
     Route::post("add",[FlightController::class,'add']);
-    Route::put("update",[FlightController::class,'update']);
+    Route::put("update/{id}",[FlightController::class,'update']);
 
     Route::get("search/{type}/{name}",[FlightController::class,'search']);
 
-    Route::get('searchGlobal/{name}', [FlightController::class, 'searchGlobal']);
+    //Route::get('searchGlobal/{name}', [FlightController::class, 'searchGlobal']);
 
     Route::delete("delete/{flight_id}", [FlightController::class,'delete']);
     Route::post("save",[FlightController::class,'testData']);
-    });
+   // });
     //Route::post("add",[FlightController::class,'add']);
 //Route::post("login",[UserController::class,'index']);
 //Route::post('signup', [UserController::class, 'getdata']);
 Route::post('import', [UserController::class, 'import']);
-Route::get('export', [UserController::class, 'export']);
+Route::get('export/{type}', [UserController::class, 'export']);
 
 Route::post('/login',[UserController::class, 'login_user']);
 Route::post('/signup',[UserController::class, 'register']);

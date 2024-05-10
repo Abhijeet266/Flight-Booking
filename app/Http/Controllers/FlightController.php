@@ -24,6 +24,8 @@ class FlightController extends Controller
             return ["Result","Operation failed"];
         }
     }
+
+    //updation
     function update(Request $req , $id){
         $flight = Flight::find($id);
         $flight->flight_name=$req->flight_name;
