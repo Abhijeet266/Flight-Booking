@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Validator;
 class FlightController extends Controller
 {
+    //abcd
     //
     function list($id=null){
         return $id?Flight::find($id):Flight::all();
